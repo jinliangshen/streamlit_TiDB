@@ -9,6 +9,9 @@ import pandas as pd
 @st.cache_data(ttl=5)
 def query_vehicle_data(vin_filter=None, date_filter=None,Column:list=None):
     conn = InitConnectionDB()
+    # 提交事务以刷新连接状态，确保读取到最新数据 (MySQL 默认的可重复读隔离级别会导致复用连接时看不到新数据)
+    if conn:
+        conn.commit()
     cursor = conn.cursor()
     
     query = f"SELECT  dtc as {Column[0]}, node as {Column[1]}, voltage as {Column[2]}, soc as {Column[3]}, speed as {Column[4]}, miles as {Column[5]} FROM `Streamlit-Table`"
@@ -45,6 +48,8 @@ def main()->None:
         data = pd.DataFrame(np.array(lista).reshape(-1,6),columns=dataColumn)
     
     st.dataframe(data)
+
+    print("aaa")
 
 if __name__ == "__main__":
     main()
